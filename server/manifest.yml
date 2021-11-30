@@ -1,11 +1,11 @@
   applications:
-  - name: djangoapp
+  - name: dealershipappmccoy
     routes:
-      - route: $HOST.$DOMAIN
+      - route: dlm.mybluemix.net
     memory: 128M
     buildpack: python_buildpack
-  - name: djangoapp-nginx
+  - name: dealershipappmccoy-nginx
     routes:
-      - route: $HOST.$DOMAIN/static
+      - route: dlm.mybluemix.net/static
     memory: 128M
     buildpack: staticfile_buildpack
