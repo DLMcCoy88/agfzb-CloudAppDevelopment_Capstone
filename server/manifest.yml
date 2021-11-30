@@ -1,11 +1,11 @@
   applications:
   - name: dealershipappmccoy
     routes:
-      - route: dlm.mybluemix.net
+      - route: dlm.mybluemix.net/djangoapp
     memory: 128M
     buildpack: python_buildpack
   - name: dealershipappmccoy-nginx
     routes:
-      - route: dlm.mybluemix.net/static
+      - route: dlm.mybluemix.net/djangoapp/static
     memory: 128M
     buildpack: staticfile_buildpack
