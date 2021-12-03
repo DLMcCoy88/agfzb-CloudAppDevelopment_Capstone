@@ -53,12 +53,8 @@ def login_request(request):
 
 # Create a `logout_request` view to handle sign out request
 def logout_request(request):
-    context ={}
-    # Get the user object based on session id in request
-    print("Log out the user `{}`".format(request.user.username))
-    # Logout user in the request
     logout(request)
-    return render(request, 'djangoapp/index.html', context)
+    return redirect('djangoapp:index')
 
 # Create a `registration_request` view to handle sign up request
 def registration_request(request):
