@@ -3,7 +3,6 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views
 
-x = 9
 app_name = 'djangoapp'
 urlpatterns = [
     # route is a string contains a URL pattern
