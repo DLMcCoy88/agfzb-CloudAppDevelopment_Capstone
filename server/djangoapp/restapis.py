@@ -13,8 +13,13 @@ def get_request(url, **kwargs):
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
-        if "apikey" in kwargs:
-            response = requests.get(url, headers={'Content-Type':'application/json'}, params=kwargs, auth=HTTPBasicAuth("apikey", kwargs["apikey"]))
+        if "api_key" in kwargs:
+            params = dict()
+            params["text"] = kwargs["text"]
+            params["version"] = kwargs["version"]
+            params["features"] = kwargs["features"]
+            params["return_analyzed_text"] = kwargs["return_analyzed_text"]
+            response = requests.get(url, headers={'Content-Type':'application/json'}, params=params, auth=HTTPBasicAuth("apikey", kwargs['api_key']))
         else:
             response = requests.get(url, headers={'Content-Type':'application/json'}, params=kwargs)
     except:
@@ -27,7 +32,15 @@ def get_request(url, **kwargs):
 
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
-
+def post_request(url, json_payload, **kwargs):
+    json_obj = json_payload["review"]
+    print(kwargs)
+    try:
+        response = requests.post(url, json=json_obj, params=kwargs)
+    except:
+        print("Something went wrong")
+    print (response)
+    return response
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
 # def get_dealers_from_cf(url, **kwargs):
@@ -67,19 +80,17 @@ def get_dealer_reviews_from_cf(url, **kwargs):
         reviews = json_result["body"]["data"]["docs"]
         # For each review object
         for review in reviews:
-            review_obj = DealerReview(
-                dealership=review["dealership"],
-                name=review["name"],
-                purchase=review["purchase"],
-                review=review["review"],
-                purchase_date=review["purchase_date"],
-                car_make=review["car_make"],
-                car_model=review["car_model"],
-                car_year=review["car_year"],
-                sentiment=review["review"],
-                id=review['id'],
-                sentiment=analyze_review_sentiments(review["review"])
-                )
+            try:
+                review_obj = DealerReview(name = review["name"], 
+                dealership = review["dealership"], review = review["review"], purchase=review["purchase"],
+                purchase_date = review["purchase_date"], car_make = review['car_make'],
+                car_model = review['car_model'], car_year= review['car_year'], id = review['id'], sentiment= "none")
+            except:
+                review_obj = DealerReview(name = review["name"], 
+                dealership = review["dealership"], review = review["review"], purchase=review["purchase"],
+                purchase_date = 'none', car_make = 'none',
+                car_model = 'none', car_year= 'none', id = review['id'], sentiment= "none")
+            review_obj.sentiment=analyze_review_sentiments(review_obj.review)
             results.append(review_obj)
     else:
         results = "This didn't work " + str(dealer_id)
@@ -91,17 +102,17 @@ def get_dealer_reviews_from_cf(url, **kwargs):
 # def analyze_review_sentiments(text):
 # - Call get_request() with specified arguments
 # - Get the returned sentiment label such as Positive or Negative
-def analyze_review_sentiments(dealerreview, **kwargs):
+def analyze_review_sentiments(dealerreview):
     API_KEY="JEpSo_VGYeZW0lS2mZSi9HDo7tZPgwYaHRkjQN8E0pZS"
-    NLU_URL='https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/0605eabd-fe4e-41ea-87fc-846a48501ec0'
-    params = json.dumps({"text": dealerreview, "features": {"sentiment": {}}})
-    response = requests.post(NLU_URL,data=params,headers={'Content-Type':'application/json'},auth=HTTPBasicAuth("apikey", API_KEY))
-    
-    #print(response.json())
-    try:
-        sentiment=response.json()['sentiment']['document']['label']
-        return sentiment
-    except:
-        return "neutral"
+    NLU_URL='https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/0605eabd-fe4e-41ea-87fc-846a48501ec0/v1/analyze'
+    parameters = {
+        "api_key": API_KEY,
+        "text": dealerreview,
+        "version": "2021-08-01",
+        "features": "sentiment",
+        "return_analyzed_text": True
+    }
+    json_result = get_request(NLU_URL,**parameters)
+    return json_result
 
 
