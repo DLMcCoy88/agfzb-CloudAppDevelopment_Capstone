@@ -81,5 +81,4 @@ class DealerReview:
         self.id=id
 
     def __str__(self):
-        return "Review: " + self.review +\
-                " Sentiment: " + self.sentiment
+        return "Review: " + self.review + "\n" 
