@@ -75,7 +75,6 @@ def get_dealer_reviews_from_cf(url, **kwargs):
     parameters = kwargs['kwargs']
     # Call get_request with a URL parameter
     json_result = get_request(url, **parameters)
-    
     if json_result:
         reviews = json_result["body"]["data"]["docs"]
         # For each review object
