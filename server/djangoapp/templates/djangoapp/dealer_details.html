@@ -25,6 +25,13 @@
                 </div>
             {% endfor %}
         </div>
+        <div class="card-footer text-center" style="min-height: 74px;">
+            {% if user.is_authenticated %}
+                <a class="btn btn-warning btn-lg" type="submit" href="/djangoapp/dealer/{{dealer.id}}/add_review/">Write a Review!</a>
+            {% else %}
+                <p class="btn btn-success nohover">Login to write a review!</p>
+            {% endif %}
+        </div>
     </main>
     </body>
 
