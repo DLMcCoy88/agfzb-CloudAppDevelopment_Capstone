@@ -13,10 +13,8 @@
     <body>
     <!--Add review form here -->
     <main role="main" class="d-flex justify-content-center pt-3 ">
-        {% for dealer in dealers %}
-        <form action="/djangoapp/dealer/{{dealer.id}}/add_review/" method="post">
+        <form class="border border-dark p-4 w-auto h-auto text-center bg-light" action="{% url 'djangoapp:add_review' dealer_id %}"  method="post">
             {% csrf_token %}
-        {% endfor %} 
             <h1 class="text-center">Review for {{dealer_name}}</h1><br>
             <label for="name"><b>Name</b></label>
             <br>
@@ -45,3 +43,4 @@
     </main>
     </body>
 </html>
+
