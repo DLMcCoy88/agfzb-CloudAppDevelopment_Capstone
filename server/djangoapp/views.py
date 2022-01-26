@@ -139,11 +139,11 @@ def add_review(request, dealer_id):
                 "purchase": form.get("purchasecheck"),
                 }
             if form.get("purchasecheck"):
-                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%m/%d/%Y").isoformat()
+                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%d/%m/%Y").isoformat()
                 car = models.CarModel.objects.get(pk=form["car"])
-                review["car_make"] = car.carmake.name
-                review["car_model"] = car.name
-                review["car_year"]= car.year.strftime("%Y")
+                review["car_make"] = car.car_make.name
+                review["car_model"] = car.car_name
+                review["car_year"]= car.car_year.strftime("%Y")
             json_payload = {"review": review}
             print (json_payload)
             url = "https://5b93346d.us-south.apigw.appdomain.cloud/dealerships/reviews/review-post"
