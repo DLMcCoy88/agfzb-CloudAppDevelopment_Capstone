@@ -45,11 +45,11 @@ def login_request(request):
         if user is not None:
             # If user is valid, call login method to login current user
             login(request, user)
-            return render(request, 'djangoapp/index.html', context)
+            return redirect('djangoapp:index')
         else:
             # If not, return to login page again
             context["message"]="Username or password is incorrect."
-            return render(request, 'djangoapp/index.html', context)
+            return redirect('djangoapp:index')
     else:
         return render(request, 'djangoapp/index.html', context)
     
@@ -133,20 +133,20 @@ def add_review(request, dealer_id):
         if request.user.is_authenticated:
             form = request.POST
             review = {
-                "name": "{request.user.first_name} {request.user.last_name}",
+                #"name": "{request.user.first_name} {request.user.last_name}",
                 "dealership": dealer_id,
                 "review": form["content"],
                 "purchase": form.get("purchasecheck"),
                 }
             if form.get("purchasecheck"):
-                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%d/%m/%Y").isoformat()
+                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%Y-%m-%d").isoformat()
                 car = models.CarModel.objects.get(pk=form["car"])
                 review["car_make"] = car.car_make.name
                 review["car_model"] = car.car_name
                 review["car_year"]= car.car_year.strftime("%Y")
             json_payload = {"review": review}
             print (json_payload)
-            url = "https://5b93346d.us-south.apigw.appdomain.cloud/dealerships/reviews/review-post"
+            url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review"
             restapis.post_request(url, json_payload, dealerId=dealer_id)
             return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         else:

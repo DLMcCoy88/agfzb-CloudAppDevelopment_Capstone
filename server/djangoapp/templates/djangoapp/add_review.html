@@ -10,20 +10,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/js/bootstrap-datepicker.js"></script>
 
 </head>
+{% include 'navigation.html' %}
     <body>
+    <main role="main" class="d-flex justify-content-center pt-3 ">
     <!--Add review form here -->
-        <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post">
+        <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post" class="border border-dark p-4 w-auto h-auto text-center bg-light">
             {% csrf_token %}
+            <h1 class="text-center">Review for {{dealer_name}}</h1><br>
             <div class="form-group">
-                <label for="content">Enter the review content:</label>
+                <label for="content">Enter the review below:</label>
                 <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
             </div>
             <div class="form-group form-check">
                 <input class="form-check-input" type="checkbox" name="purchasecheck" id="purchasecheck">
-                <label for="purchasecheck">Did you purchase the car? (If yes, kindly fill the below information as well. If no, You can just submit the form.)</label>
+                <label for="purchasecheck">Did you purchase the car? (check box if yes)</label>
             </div>
             <div class="form-group">
-                <label for="car">Select your car (model-make-year):</label>
+                <label for="car">Select your car:</label>
                 <select name="car" id="car" class="form-select">
                     {% for car in cars %}
                         <option selected value={{car.id}}>{{ car.car_year|date:"Y" }} {{car.car_make}} {{car.car_name}}</option>
@@ -32,7 +35,7 @@
             </div>
             <div class="form-group" data-provide="datepicker">
                 <label for="purchasedate">Select your purchase date:</label>
-                <input class="form-control" type="text" name="purchasedate" id="purchasedate">
+                <input class="date-own form-control" type="date" name="purchasedate" id="purchasedate">
             </div>
            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
