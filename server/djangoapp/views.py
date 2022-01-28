@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
+import requests
 import logging
 import json
 from . import restapis
@@ -136,7 +137,7 @@ def add_review(request, dealer_id):
                 #"name": "{request.user.first_name} {request.user.last_name}",
                 "dealership": dealer_id,
                 "review": form["content"],
-                "purchase": form.get("purchasecheck"),
+                "purchase": form.get("purchasecheck") == "on",
                 }
             if form.get("purchasecheck"):
                 review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%Y-%m-%d").isoformat()
@@ -144,10 +145,16 @@ def add_review(request, dealer_id):
                 review["car_make"] = car.car_make.name
                 review["car_model"] = car.car_name
                 review["car_year"]= car.car_year.strftime("%Y")
+            #json_payload = {}
             json_payload = {"review": review}
-            print (json_payload)
+            rev = json_payload["review"]
+            print (rev)
+            ds = str(review['dealership'])
             url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review"
-            restapis.post_request(url, json_payload, dealerId=dealer_id)
+            #url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review?dealership={0}".format(ds)
+            print (url)
+            restapis.post_request(url, rev, dealership=dealer_id)
+            
             return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         else:
             return redirect("/djangoapp/login")
