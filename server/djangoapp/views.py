@@ -130,26 +130,29 @@ def add_review(request, dealer_id):
             "dealer_name": get_dealers_from_cf(url)[dealer_id-1].full_name,
         }
         return render(request, 'djangoapp/add_review.html', context)
-    if request.method == "POST":
+    elif request.method == 'POST':
         if request.user.is_authenticated:
             form = request.POST
-            review = {
-                #"name": "{request.user.first_name} {request.user.last_name}",
-                "dealership": dealer_id,
-                "review": form["content"],
-                "purchase": form.get("purchasecheck") == "on",
-                }
-            if form.get("purchasecheck"):
-                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%Y-%m-%d").isoformat()
+            username = request.user.username
+            print(form)
+            payload = dict()
+            car_id = form["car"]
+            car = models.CarModel.objects.get(pk=car_id)
+            payload["dealership"] = dealer_id
+            payload["id"] = dealer_id
+            payload["review"] = form["content"]
+            payload["purchase"] = False
+            if "purchasecheck" in form:
+                payload["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%Y-%m-%d").isoformat()
                 car = models.CarModel.objects.get(pk=form["car"])
-                review["car_make"] = car.car_make.name
-                review["car_model"] = car.car_name
-                review["car_year"]= car.car_year.strftime("%Y")
+                payload["car_make"] = car.car_make.name
+                payload["car_model"] = car.car_name
+                payload["car_year"]= car.car_year.strftime("%Y")
             #json_payload = {}
-            json_payload = {"review": review}
+            json_payload = {"review": payload}
             rev = json_payload["review"]
             print (rev)
-            ds = str(review['dealership'])
+            #ds = str(payload['dealership'])
             url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review"
             #url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review?dealership={0}".format(ds)
             print (url)
