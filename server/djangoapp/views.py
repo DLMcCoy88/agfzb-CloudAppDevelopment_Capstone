@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
-from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
+from .models import CarModel
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
@@ -11,8 +12,7 @@ from datetime import datetime
 import requests
 import logging
 import json
-from . import restapis
-from . import models
+from .models import CarModel
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ def get_dealerships(request):
         context = {}
         url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/dealership"
         # Get dealers from the URL
-        context = {"dealerships": restapis.get_dealers_from_cf(url)}
+        context = {"dealerships": get_dealers_from_cf(url)}
         # Concat all dealer's short name
         # Return a list of dealer short name
         return render(request, 'djangoapp/index.html', context)
@@ -120,44 +120,40 @@ def get_dealer_details(request, dealer_id):
 # def add_review(request, dealer_id):
 # ...
 def add_review(request, dealer_id):
-    if request.method == "GET":
-        dealersid = dealer_id
-        url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/dealership"
-        # Get dealers from the URL
+    context = {}
+    dealer_url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/dealership"
+    if request.method == 'GET':
+        # Get cars for the dealer
         context = {
-            "cars": models.CarModel.objects.all(),
+            "cars": CarModel.objects.filter(dealer_id=dealer_id),
             "dealer_id": dealer_id,
-            "dealer_name": get_dealers_from_cf(url)[dealer_id-1].full_name,
+            "dealer_name": get_dealers_from_cf(dealer_url)[dealer_id-1].full_name,
         }
+        
         return render(request, 'djangoapp/add_review.html', context)
     elif request.method == 'POST':
         if request.user.is_authenticated:
-            form = request.POST
             username = request.user.username
-            print(form)
+            print(request.POST)
             payload = dict()
-            car_id = form["car"]
-            car = models.CarModel.objects.get(pk=car_id)
+            car_id = request.POST["car"]
+            car = CarModel.objects.get(pk=car_id)
+            payload["time"] = datetime.utcnow().isoformat()
+            payload["name"] = username
             payload["dealership"] = dealer_id
             payload["id"] = dealer_id
-            payload["review"] = form["content"]
+            payload["review"] = request.POST["content"]
             payload["purchase"] = False
-            if "purchasecheck" in form:
-                payload["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%Y-%m-%d").isoformat()
-                car = models.CarModel.objects.get(pk=form["car"])
-                payload["car_make"] = car.car_make.name
-                payload["car_model"] = car.car_name
-                payload["car_year"]= car.car_year.strftime("%Y")
-            #json_payload = {}
-            json_payload = {"review": payload}
-            rev = json_payload["review"]
-            print (rev)
-            #ds = str(payload['dealership'])
-            url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review"
-            #url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review?dealership={0}".format(ds)
-            print (url)
-            restapis.post_request(url, rev, dealership=dealer_id)
-            
-            return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
-        else:
-            return redirect("/djangoapp/login")
+            if "purchasecheck" in request.POST:
+                if request.POST["purchasecheck"] == 'on':
+                    payload["purchase"] = True
+            payload["purchase_date"] = request.POST["purchasedate"]
+            payload["car_make"] = car.car_make.name
+            payload["car_model"] = car.car_name
+            payload["car_year"] = int(car.car_year.strftime("%Y"))
+
+            new_payload = {}
+            new_payload["review"] = payload
+            review_post_url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review"
+            post_request(review_post_url, new_payload, id=dealer_id)
+        return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
