@@ -26,7 +26,7 @@ class CarMake(models.Model):
 # - __str__ method to print a car make object
 class CarModel(models.Model):
     TYPES = (
-            ("SEDAN", "Sedan"), ("SUV", "SUV"), ("WAGON", "Wagon"), ("PICKUP", "Pickup"), ("MOTORCYCLE", "Motorcycle")
+            ("SEDAN", "Sedan"), ("SUV", "SUV"), ("WAGON", "Wagon"), ("PICKUP", "Pickup"), ("MOTORCYCLE", "Motorcycle"), ("MUSCLE", "Muscle"), ("SPORT", "Sport"), ("OTHER", "Other")
         )
     id = models.BigAutoField(primary_key = True)
     car_make = models.ForeignKey(CarMake, on_delete=models.CASCADE)
