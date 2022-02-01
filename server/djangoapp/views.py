@@ -128,6 +128,7 @@ def add_review(request, dealer_id):
             "cars": CarModel.objects.filter(dealer_id=dealer_id),
             "dealer_id": dealer_id,
             "dealer_name": get_dealers_from_cf(dealer_url)[dealer_id-1].full_name,
+            #"dealer_name": get_dealers_from_cf(dealer_url,dealer_id=dealer_id)
         }
         
         return render(request, 'djangoapp/add_review.html', context)
@@ -155,5 +156,7 @@ def add_review(request, dealer_id):
             new_payload = {}
             new_payload["review"] = payload
             review_post_url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review"
-            post_request(review_post_url, new_payload, id=dealer_id)
+            ds = str(payload['dealership'])
+            url = "https://21d1f6fd.us-south.apigw.appdomain.cloud/api/review?dealership={0}".format(ds)
+            post_request(review_post_url, new_payload, dealership=dealer_id)
         return redirect("djangoapp:dealer_details", dealer_id=dealer_id)

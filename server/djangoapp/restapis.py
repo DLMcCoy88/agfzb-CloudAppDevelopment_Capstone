@@ -37,7 +37,7 @@ def post_request(url, payload, **kwargs):
     print("POST to {} ".format(url))
     print(payload)
     try:
-        response = requests.post(url, params=kwargs, json=payload)
+        response = requests.post(url, params=kwargs, json=payload, headers = {'Content-Type':'application/json'})
         status_code = response.status_code
         print("With status {} ".format(status_code))
         json_data = json.loads(response.text)
