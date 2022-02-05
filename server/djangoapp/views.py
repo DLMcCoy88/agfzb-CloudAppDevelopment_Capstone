@@ -125,7 +125,7 @@ def add_review(request, dealer_id):
     if request.method == 'GET':
         # Get cars for the dealer
         context = {
-            "cars": CarModel.objects.filter(dealer_id=dealer_id),
+            "cars": CarModel.objects.all(),
             "dealer_id": dealer_id,
             "dealer_name": get_dealers_from_cf(dealer_url)[dealer_id-1].full_name,
             #"dealer_name": get_dealers_from_cf(dealer_url,dealer_id=dealer_id)
